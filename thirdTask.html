@@ -1,0 +1,58 @@
+<style>
+	#error {
+		display: none;
+	}
+	.images {
+	    display: flex;
+    	flex-wrap: wrap;
+	}
+	input {
+		width:220px;
+	}
+</style>
+
+<input type="number" placeholder="Введите число от 1 до 10">
+<button onclick="clickButton()">Отправить</button>
+<p id="error">число вне диапазона от 1 до 10</p>
+<div class="images"></div>
+
+<script>
+function clickButton() {
+	let value = document.querySelector('input').value;
+
+	if (value < 1 || value > 10) {
+		document.querySelector('#error').style.display = "block";
+	}
+
+	else {
+		document.querySelector('#error').style.display = "none";
+		request(value);
+	}
+}
+
+
+function request(value) {
+
+	const xhr = new XMLHttpRequest();
+
+	xhr.onload = function() {
+		console.log(`Статус: ${xhr.status}; Результат: ${xhr.response}`);
+		const data = JSON.parse(xhr.response);
+
+		for (i = 0; i < data.length; i++) {
+			var list = document.querySelector('.images')
+			var elem = document.createElement('div')
+			elem.innerHTML = "<img src=" + data[i].download_url + " width='500' height='333'>";
+			list.appendChild(elem)
+		}
+
+	};
+
+	xhr.onerror = function() {
+		console.log('Ошибка запроса');
+	};
+
+	xhr.open("get", "https://picsum.photos/v2/list?limit=" + value, true);
+	xhr.send();
+}
+</script>

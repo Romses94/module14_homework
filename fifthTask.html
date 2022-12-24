@@ -1,0 +1,84 @@
+<style>
+	#error {
+		/*display: none;*/
+	}
+	.images {
+	    display: flex;
+    	flex-wrap: wrap;
+	}
+	input {
+		width:220px;
+	}
+</style>
+
+<label>Номер страницы
+	<input id="number1" type="number" placeholder="Введите число от 1 до 10">
+</label>
+<label>Лимит
+	<input id="number2" type="number" placeholder="Введите число от 1 до 10">
+</label>
+<button onclick="clickButton()">Запрос</button>
+<p id="error"></p>
+<div class="images"></div>
+
+<script>
+var list = document.querySelector('.images');
+
+for (i = 0; i < localStorage.length; i++) {
+	var elem = document.createElement('div');
+	elem.innerHTML = "<img src=" + localStorage.getItem("imgSrc" + i) + " width='500' height='333'>";
+	list.appendChild(elem);
+}
+
+function clickButton() {
+	let value1 = document.querySelector('#number1').value;
+	let value2 = document.querySelector('#number2').value;
+
+	if (value1 < 1 && value2 < 1 || value1 < 1 && value2 > 10 || value1 > 10 && value2 < 1 || value1 > 10 && value2 > 10) {
+		document.querySelector('#error').innerHTML = "Номер страницы и лимит вне диапазона от 1 до 10";
+	}
+	else if (value1 < 1 || value1 > 10) {
+		document.querySelector('#error').innerHTML = "Номер страницы вне диапазона от 1 до 10";
+	}
+	else if (value2 < 1 || value2 > 10) {
+		document.querySelector('#error').innerHTML = "Лимит вне диапазона от 1 до 10";
+	}
+
+	else {
+		var url = 'https://picsum.photos/v2/list?page=' + value1 + '&limit=' + value2;
+		document.querySelector('#error').innerHTML = "";
+		request(value1, value2, url);
+	}
+}
+
+
+function request(value1, value2, url) {
+	// Делаем запрос за данными
+	fetch(url)
+    .then((response) => {
+    	// Объект ответа на запрос
+    	console.log('response', response);
+    	// Превращаем объект в JSON. Мы не можем его сразу прочитать,
+    	// надо отдать в следующий then
+    	const result = response.json();
+	    console.log('result', result);
+    	return result;
+    })
+    .then((data) => {
+	    // Объект результата в формате JSON
+    	console.log(data);
+
+		var list = document.querySelector('.images');
+		list.innerHTML = "";
+		localStorage.clear();
+
+		for (i = 0; i < data.length; i++) {
+			var elem = document.createElement('div');
+			elem.innerHTML = "<img src=" + data[i].download_url + " width='500' height='333'>";
+			list.appendChild(elem);
+			localStorage.setItem("imgSrc" + i, data[i].download_url);
+		}
+    })
+    .catch(() => { console.log('error') });
+}
+</script>

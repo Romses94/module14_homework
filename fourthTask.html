@@ -1,0 +1,61 @@
+<style>
+	#error {
+		display: none;
+	}
+	.images {
+	    display: flex;
+    	flex-wrap: wrap;
+	}
+	input {
+		width:220px;
+	}
+</style>
+
+<input id="number1" type="number" placeholder="Введите число от 100 до 300">
+<input id="number2" type="number" placeholder="Введите число от 100 до 300">
+<button onclick="clickButton()">Отправить</button>
+<p id="error">Одно из чисел вне диапазона от 100 до 300</p>
+<div class="images"></div>
+
+<script>
+function clickButton() {
+	let value1 = document.querySelector('#number1').value;
+	let value2 = document.querySelector('#number2').value;
+
+	if (value1 < 100 || value1 > 300 || value2 < 100 || value2 > 300) {
+		document.querySelector('#error').style.display = "block";
+	}
+
+	else {
+		document.querySelector('#error').style.display = "none";
+		request(value1, value2);
+	}
+}
+
+
+function request(value1, value2) {
+	// Делаем запрос за данными
+	fetch('https://picsum.photos/v2/list/?limit=5')
+    .then((response) => {
+    	// Объект ответа на запрос
+    	console.log('response', response);
+    	// Превращаем объект в JSON. Мы не можем его сразу прочитать,
+    	// надо отдать в следующий then
+    	const result = response.json();
+	    console.log('result', result);
+    	return result;
+    })
+    .then((data) => {
+	    // Объект результата в формате JSON
+    	console.log(data);
+
+		for (i = 0; i < data.length; i++) {
+			var list = document.querySelector('.images')
+			var elem = document.createElement('div')
+			elem.innerHTML = "<img src=" + data[i].download_url + " width='" + value1 + "' height='" + value2 + "'>";
+			list.appendChild(elem)
+		}
+    })
+    .catch(() => { console.log('error') });
+}
+</script>
